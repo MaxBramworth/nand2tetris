@@ -51,14 +51,16 @@ CHIP ALU {
    Not16(in=Ypostz, out=notYpostz);
    Mux16(a=Ypostz, b=notYpostz, sel=ny, out=doneY);
    
-   Add16(a=doneX, b=doneY, out=XaddY);
-   And16(a=doneX, b=doneY, out=XandY);
-   Mux16(a=XandY, b=XaddY, sel=f, out=XYfunc);
+   Add16(a=doneX, b=doneY, out=XaddY); // calc their add
+   And16(a=doneX, b=doneY, out=XandY); // and their and
+   Mux16(a=XandY, b=XaddY, sel=f, out=XYfunc); // then pick one
 
-   Not16(in=XYfunc, out=notXYfunc);
-   Mux16(a=XYfunc, b=notXYfunc, sel=no, out=result);
+   Not16(in=XYfunc, out=notXYfunc); // not if required
+   Mux16(a=XYfunc, b=notXYfunc, sel=no, out=out, out=whattersmoment, out[0..7]=zeroseven, out[8..15]=eightfifteen, out[15]=ng); // final result, also output into 'result'
 
-   //Not16(in=result, out=zr);
-   
-   //And(a=result[0], b=true, out=ng);
+   Or8Way(in=zeroseven, out=firsthalf); // annoying as heck check for 0
+   Not(in=firsthalf, out=notfirsthalf); // firsthalf will be off if all are off so it needs inverting
+   Or8Way(in=eightfifteen, out=secondhalf); // and the second half
+   Not(in=secondhalf, out=notsecondhalf);
+   And(a=notfirsthalf, b=notsecondhalf, out=zr); // make sure both are funky
 }
